@@ -6,20 +6,46 @@
     <meta name="description" content="オリジナルマーカー画像を認識してモデルを表示するARアプリ">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script>
+      // モデル読み込み後に明るさを調整するコンポーネント
+      AFRAME.registerComponent('adjust-model', {
+        init: function () {
+          this.el.addEventListener('model-loaded', e => {
+            const model = e.detail.model;
+            model.traverse(node => {
+              if (node.isMesh && node.material) {
+                // マテリアルがある場合は明るくする
+                if (Array.isArray(node.material)) {
+                  // 複数のマテリアルがある場合
+                  node.material.forEach(material => {
+                    material.emissive = new THREE.Color(0x333333);
+                    material.emissiveIntensity = 0.5;
+                  });
+                } else {
+                  // 単一のマテリアルの場合
+                  node.material.emissive = new THREE.Color(0x333333);
+                  node.material.emissiveIntensity = 0.5;
+                }
+              }
+            });
+          });
+        }
+      });
+    </script>
   </head>
   <body style="margin: 0; overflow: hidden;">
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
       <!-- カスタムマーカーを定義 -->
       <a-marker type="pattern" url="marker/pattern-marker.patt">
-        <!-- ライトの追加 -->
-        <a-entity light="type: ambient; color: #FFF; intensity: 1.5"></a-entity>
-        <a-entity light="type: directional; color: #FFF; intensity: 1.0" position="-1 1 2"></a-entity>
+        <!-- 周囲の光を追加 -->
+        <a-entity light="type: ambient; color: #FFF; intensity: 1.0"></a-entity>
         
         <!-- マーカーが認識されたときに表示されるモデル -->
         <a-entity
-          position="0 0.5 0"
+          position="0 0 0"
           scale="5 5 5"
-          gltf-model="models/dinosaur.glb">
+          gltf-model="models/dinosaur.glb"
+          adjust-model>
         </a-entity>
       </a-marker>
       
