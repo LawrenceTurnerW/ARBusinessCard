@@ -12,33 +12,42 @@
         init: function () {
           this.el.addEventListener('model-loaded', e => {
             const model = e.detail.model;
+            console.log('モデルが読み込まれました - 明るく処理します');
+            
             model.traverse(node => {
               if (node.isMesh && node.material) {
                 // マテリアルがある場合は明るくする
                 if (Array.isArray(node.material)) {
                   // 複数のマテリアルがある場合
                   node.material.forEach(material => {
-                    material.emissive = new THREE.Color(0x333333);
-                    material.emissiveIntensity = 0.5;
+                    if (material.color) {
+                      material.color.multiplyScalar(22);
+                    }
+                    material.toneMapped = false;
                   });
                 } else {
                   // 単一のマテリアルの場合
-                  node.material.emissive = new THREE.Color(0x333333);
-                  node.material.emissiveIntensity = 0.5;
+                  if (node.material.color) {
+                    node.material.color.multiplyScalar(22);
+                  }
+                  node.material.toneMapped = false;
                 }
               }
             });
+            
+            console.log('モデルの明るさ処理が完了しました');
           });
         }
       });
     </script>
   </head>
   <body style="margin: 0; overflow: hidden;">
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="colorManagement: true; physicallyCorrectLights: true; exposure: 2;">
       <!-- カスタムマーカーを定義 -->
       <a-marker type="pattern" url="marker/pattern-marker.patt">
         <!-- 周囲の光を追加 -->
-        <a-entity light="type: ambient; color: #FFF; intensity: 1.0"></a-entity>
+        <a-entity light="type: ambient; color: #FFF; intensity: 2.0"></a-entity>
+        <a-entity light="type: directional; color: #FFF; intensity: 1.5" position="1 1 1"></a-entity>
         
         <!-- マーカーが認識されたときに表示されるモデル -->
         <a-entity
