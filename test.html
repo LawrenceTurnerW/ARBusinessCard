@@ -31,17 +31,35 @@
     </script>
   </head>
   <body style="margin: 0; overflow: hidden;">
+    <a-scene renderer="colorManagement: true; physicallyCorrectLights: true; exposure: 2;">
+      <!-- 非常に明るい環境光 -->
+      <a-entity light="type: ambient; color: #FFFFFF; intensity: 3.0"></a-entity>
+      
+      <!-- 複数の方向からの強い指向性ライト -->
+      <a-entity light="type: directional; color: #FFFFFF; intensity: 2.0; castShadow: true" position="1 1 2"></a-entity>
+      <a-entity light="type: directional; color: #FFFFFF; intensity: 2.0" position="-1 1 -1"></a-entity>
+      
+      <!-- 全体を照らす明るいポイントライト -->
+      <a-entity light="type: point; color: #FFFFFF; intensity: 2.0; distance: 50" position="0 5 0"></a-entity>
+      
       <!-- 3Dモデル - super-bright コンポーネントを追加 -->
+      <a-entity
+        position="0 4 0"
+        rotation="0 0 0"
+        scale="0.5 0.5 0.5"
+        gltf-model="models/dinosaur.glb"
+        super-bright>
+      </a-entity>
       <a-entity
         position="0 0 -5"
         rotation="0 0 0"
         scale="5 5 5"
-        gltf-model="models/dinosaur.glb"
+        gltf-model="models/human.glb"
         super-bright>
       </a-entity>
       
       <!-- カメラと操作コントロール - 近い位置に配置 -->
-      <a-entity camera look-controls wasd-controls position="0 1.6 0"></a-entity>
+      <a-entity camera look-controls wasd-controls position="0 5 0"></a-entity>
       
       <!-- 白い床（反射による明るさ追加） -->
       <a-plane position="0 -1 0" rotation="-90 0 0" width="100" height="100" color="#FFFFFF" material="metalness: 0.3; roughness: 0.4"></a-plane>

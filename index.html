@@ -12,54 +12,83 @@
         init: function () {
           this.el.addEventListener('model-loaded', e => {
             const model = e.detail.model;
-            console.log('モデルが読み込まれました - 明るく処理します');
+            console.log('モデルが読み込まれました - デバッグ情報:');
+            console.log('モデル構造:', model);
             
             model.traverse(node => {
-              if (node.isMesh && node.material) {
-                // マテリアルがある場合は明るくする
-                if (Array.isArray(node.material)) {
-                  // 複数のマテリアルがある場合
-                  node.material.forEach(material => {
-                    if (material.color) {
-                      material.color.multiplyScalar(22);
+              if (node.isMesh) {
+                console.log('メッシュ検出:', node.name);
+                
+                // マテリアルのデバッグ情報
+                if (node.material) {
+                  console.log('マテリアル情報:', node.material);
+                  
+                  // 基本色の設定（テクスチャが読み込めなくても白く表示されるように）
+                  if (Array.isArray(node.material)) {
+                    node.material.forEach(material => {
+                      // 既存のテクスチャをチェック
+                      if (material.map) {
+                        console.log('テクスチャあり:', material.map.source);
+                      } else {
+                        console.log('テクスチャなし - 白色を適用');
+                      }
+                      
+                      // 基本色を白に設定
+                      material.color = new THREE.Color(1, 1, 1);
+                      material.emissive = new THREE.Color(0.5, 0.5, 0.5);
+                      material.emissiveIntensity = 1;
+                    });
+                  } else {
+                    // 既存のテクスチャをチェック
+                    if (node.material.map) {
+                      console.log('テクスチャあり:', node.material.map.source);
+                    } else {
+                      console.log('テクスチャなし - 白色を適用');
                     }
-                    material.toneMapped = false;
-                  });
-                } else {
-                  // 単一のマテリアルの場合
-                  if (node.material.color) {
-                    node.material.color.multiplyScalar(22);
+                    
+                    // 基本色を白に設定
+                    node.material.color = new THREE.Color(1, 1, 1);
+                    node.material.emissive = new THREE.Color(0.5, 0.5, 0.5);
+                    node.material.emissiveIntensity = 1;
                   }
-                  node.material.toneMapped = false;
+                } else {
+                  console.log('マテリアルなし - 新規作成');
+                  // マテリアルがない場合は新規作成
+                  node.material = new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    emissive: 0x555555,
+                    emissiveIntensity: 1
+                  });
                 }
               }
             });
             
-            console.log('モデルの明るさ処理が完了しました');
+            console.log('モデルの処理が完了しました');
           });
         }
       });
     </script>
   </head>
   <body style="margin: 0; overflow: hidden;">
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="colorManagement: true; physicallyCorrectLights: true; exposure: 2;">
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: true;" renderer="colorManagement: true;">
       <!-- カスタムマーカーを定義 -->
       <a-marker type="pattern" url="marker/pattern-marker.patt">
-        <!-- 非常に明るい環境光 -->
-      <a-entity light="type: ambient; color: #FFFFFF; intensity: 3.0"></a-entity>
-      
-      <!-- 複数の方向からの強い指向性ライト -->
-      <a-entity light="type: directional; color: #FFFFFF; intensity: 2.0; castShadow: true" position="1 1 2"></a-entity>
-      <a-entity light="type: directional; color: #FFFFFF; intensity: 2.0" position="-1 1 -1"></a-entity>
-      
-      <!-- 全体を照らす明るいポイントライト -->
-      <a-entity light="type: point; color: #FFFFFF; intensity: 2.0; distance: 50" position="0 5 0"></a-entity>
+        <!-- 強力なライト -->
+        <a-entity light="type: ambient; color: #FFF; intensity: 2.0"></a-entity>
+        <a-entity light="type: directional; color: #FFF; intensity: 1.5" position="1 1 1"></a-entity>
+        <a-entity light="type: point; color: #FFF; intensity: 1.0; distance: 50" position="0 5 0"></a-entity>
         
-        <!-- マーカーが認識されたときに表示されるモデル -->
+        <!-- モデル -->
         <a-entity
-          position="0 0 0"
-          scale="5 5 5"
+          position="0 -3 0"
+          scale="0.5 0.5 0.5"
           gltf-model="models/dinosaur.glb"
+          adjust-model>
+        </a-entity>
+        <a-entity
+          position="5 -3 0"
+          scale="5 5 5"
+          gltf-model="models/human.glb"
           adjust-model>
         </a-entity>
       </a-marker>
