@@ -6,6 +6,8 @@
     <meta name="description" content="オリジナルマーカー画像を認識してモデルを表示するARアプリ">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- animation-mixerコンポーネントを提供するaframe-extrasを追加 -->
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
     <script>
       // モデル読み込み後に明るさを調整するシンプルなコンポーネント
       AFRAME.registerComponent('adjust-model', {
@@ -13,6 +15,13 @@
           this.el.addEventListener('model-loaded', e => {
             const model = e.detail.model;
             console.log('モデルが読み込まれました - 明るさ調整を適用します');
+            
+            // アニメーション情報をログに表示（デバッグ用）
+            if (model.animations && model.animations.length > 0) {
+              console.log('アニメーション情報:', model.animations.map(anim => anim.name));
+            } else {
+              console.log('このモデルにはアニメーションが含まれていません');
+            }
             
             model.traverse(node => {
               if (node.isMesh && node.material) {
@@ -41,7 +50,7 @@
     </script>
   </head>
   <body style="margin: 0; overflow: hidden;">
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="colorManagement: true;">
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="colorManagement: true; exposure: 1.5;">
       <!-- カスタムマーカーを定義 -->
       <a-marker type="pattern" url="marker/pattern-marker.patt">
         <!-- 強力なライト -->
@@ -61,7 +70,7 @@
           scale="0.8 0.8 1"
           gltf-model="models/human.glb"
           adjust-model
-          animation-mixer>
+          animation-mixer="clip: *; loop: repeat; timeScale: 1.0; crossFadeDuration: 0.3;">
         </a-entity>
       </a-marker>
       
